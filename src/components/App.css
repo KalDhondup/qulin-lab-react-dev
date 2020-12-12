@@ -1,7 +1,15 @@
 .App {
   /* text-align: center; */
+  padding: 1rem;
 }
 
+.heading {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+
+/* ----------------------------------------------------------------------------------------- */
 .App-logo {
   height: 40vmin;
   pointer-events: none;

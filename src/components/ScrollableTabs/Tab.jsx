@@ -17,7 +17,9 @@ function Tab(props) {
       onFocus={() => setOnFocus(true)}
       onClick={() => props.onClick(props.tabInfo.id)}
     >
-      {props.tabInfo.title}
+      <div className={'tabContent'}>
+        {props.tabInfo.title}
+      </div>
 
       <span className={`removeBtn ${onHover || onFocus ? '' : 'hidden'}`}
         onClick={(e) => {

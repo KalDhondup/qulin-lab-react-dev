@@ -7,6 +7,13 @@ import Modal from './Modal';
 export default class ScrollableTabs extends Component {
   tabId = 0;    // tab id base index 
   tabGroupElment = null;    // parent dom with all tabs as child node
+  defaultModelDetail = {  // modal default settings
+    open: false,
+    title: '',
+    description: '',
+    onOk: null,
+    onCancle: null,
+  }
 
   constructor(props) {
     super(props);
@@ -70,7 +77,7 @@ export default class ScrollableTabs extends Component {
     }
   }
 
-  removeTab = (id) => {
+  removeTab = (tabId) => {
     // remove selected tab component from the tabs list
     if (this.state.tabs.length > 1) {
 
@@ -78,7 +85,8 @@ export default class ScrollableTabs extends Component {
         'Are you sure you want to remove this tab?',
         () => {
           // passing callback function on click ok
-          this.state.tabs.splice(this.state.tabs.findIndex(tab => tab.id === id), 1);
+          this.setNewActiveTab(tabId);
+          this.state.tabs.splice(this.state.tabs.findIndex(tab => tab.id === tabId), 1);
           this.setState({
             tabs: [...this.state.tabs],
           }, () => {
@@ -88,6 +96,24 @@ export default class ScrollableTabs extends Component {
       );
     } else {
       this.onOpenModal('This is the last tab and can not be removed');
+    }
+
+  }
+
+  setNewActiveTab = (tabId) => {
+    // if removing tab is an active tab
+    let tabIndex = this.state.tabs.findIndex(tab => tab.id === tabId);
+
+    if (!this.state.tabs[tabIndex].isActive) {
+      return;
+    }
+
+    // finds a near by tab and set it active tab
+    // set following tab if available else set the front tab as active
+    if (this.state.tabs[tabIndex + 1]) {
+      this.switchActiveTab(tabIndex, tabIndex + 1);
+    } else {
+      this.switchActiveTab(tabIndex, tabIndex - 1);
     }
 
   }
@@ -194,14 +220,14 @@ export default class ScrollableTabs extends Component {
     }
   }
 
-  onOpenModal = (description = '', okCallbackFunc = null, cancleCallbackFunc = null) => {
+  onOpenModal = (description = '', okCallbackFunc = null) => {
     this.setState({
       modal: {
         open: true,
         title: '',
         description: description,
-        onOk: () => this.modalOnOk(okCallbackFunc),
-        onCancle: () => this.modalOnCancle(cancleCallbackFunc),
+        onOk: okCallbackFunc ? () => this.modalOnOk(okCallbackFunc) : null,
+        onCancle: () => this.modalOnCancle(),
       },
     });
   }
@@ -209,11 +235,7 @@ export default class ScrollableTabs extends Component {
   modalOnOk = (callbackFucn) => {
     console.log('on modal ok');
     this.setState({
-      modal: {
-        open: false,
-        title: '',
-        description: '',
-      },
+      modal: { ...this.defaultModelDetail },
     }, () => {
       if (callbackFucn) {
         callbackFucn();
@@ -224,11 +246,7 @@ export default class ScrollableTabs extends Component {
   modalOnCancle = (callbackFunc) => {
     console.log('on modal cancle');
     this.setState({
-      modal: {
-        open: false,
-        title: '',
-        description: '',
-      },
+      modal: { ...this.defaultModelDetail },
     }, () => {
       if (callbackFunc) {
         callbackFunc();
@@ -263,7 +281,12 @@ export default class ScrollableTabs extends Component {
     this.setState({
       tabs: tempTabs,
     });
+
+    // sending the active tab back to parent componet
+    this.props.selectedTab(tempTabs[newActiveIndex].title);
   }
+
+
 
   render() {
     return (
@@ -289,7 +312,10 @@ export default class ScrollableTabs extends Component {
           <svg xmlns="http://www.w3.org/2000/svg" width="auto" height="auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </span>
 
+
         {this.state.modal && this.state.modal.open && <Modal modalDetial={this.state.modal} onOk={this.modalOnOk} onCancle={this.modalOnCancle} />}
+
+        {this.props.children}
       </div>
     )
   }

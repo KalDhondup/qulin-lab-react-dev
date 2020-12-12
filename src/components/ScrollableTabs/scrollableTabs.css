@@ -6,6 +6,7 @@
   /* justify-content: space-between; */
   width: 100%;
   /* overflow-x: scroll; */
+  border-radius: 4px;
 }
 
 .tabs{
@@ -21,11 +22,18 @@
 
 .btnIcons{
   width: 2rem;
-  height: auto;
-  margin: 4px;
+  height: 100%;
+  /* margin: 0.2rem; */
   /* background-color: red; */
-  /* padding: 0px; */
-  color: #dd8686;
+  padding: 0.2rem;
+  color: #41bdd9;
+  border-radius: 4px;
+  transition: all 135ms ease-in-out 0.1s;
+}
+
+.btnIcons:hover{
+  background-color:#daf6fc;
+  cursor: pointer;
 }
 
 .hidden {

@@ -3,31 +3,51 @@
   
   /* width: 100%;
   height: 100%; */
-  margin: auto 4px;
-  background-color:wheat;
+  margin: 2px;
+  background-color:#fefefe;
   position: relative;
+  border-radius: 4px 4px 0px 0px
 }
 
 .tab:hover{
   /* tab hover style */
   /* background-color:rgba(255,255,255,0.8); */
+  cursor: pointer;
 }
 .tab:focus{
   /* tab hover style */
-  background-color:red;
+  color: red;
 }
 
+.tabContent{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+
+}
 .tabActive {
-  background-color:red;
+  border-bottom: 2px #61dafb solid;
+  background-color: #ecfbff;
+  transition: any ease-in-out 1000ms;
 }
 
 .removeBtn {
   position: absolute;
   top: 0px;
   right: 0px;
+  width: 18px;
+  height: 18px;
+  /* margin: 0.2rem; */
+  /* background-color: red; */
+  /* padding: 0.2rem; */
+  color: #41bdd9;
+  border-radius: 50%;
+  transition: all 135ms ease-in-out 0.1s;
 }
 .removeBtn:hover{
-  background-color:lightpink;
+  background-color:#daf6fc;
   cursor: pointer;
 }
 .hidden {

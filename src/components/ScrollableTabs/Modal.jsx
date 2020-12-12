@@ -13,6 +13,10 @@ export default function Modal(props) {
     }
   });
 
+  const Button = ({ label, onClick }) => {
+    return <button onClick={onClick}>{label}</button>
+  }
+
   return ReactDOM.createPortal(
     <div className={`madal`}>
       <div className={'modalContainer'}>
@@ -21,11 +25,11 @@ export default function Modal(props) {
         </div>
 
         <div className={'modalBtnGroup'}>
-          <button onClick={props.modalDetial.onOk}>Ok</button>
-          <button onClick={props.modalDetial.onCancle}>Cancle</button>
+          {props.modalDetial.onOk && <Button label={'Ok'} onClick={props.modalDetial.onOk} />}
+          {props.modalDetial.onCancle && <Button label={'Cancle'} onClick={props.modalDetial.onCancle} />}
         </div>
 
       </div>
     </div>
-    , document.querySelector("#scrollableTab-modal-root"))
+    , document.querySelector("#scrollableTab-modal-root"));
 }
