@@ -49,17 +49,23 @@ export default class ScrollableTabs extends Component {
     let tempTabs = [];
 
     for (let i = 0; i < this.props.defaultTabCounts; i++) {
-      tempTabs.push(this.createNewTab());
+      if (i === 0) {
+        // making first tab active by default
+        tempTabs.push(this.createNewTab(undefined, true));
+      } else {
+        tempTabs.push(this.createNewTab());
+      }
     }
 
     return [...tempTabs];
   }
 
-  createNewTab = (title = '') => {
+  createNewTab = (title = '', isActive = false) => {
     // creates new tab
     return {
       id: ++this.tabId,
       title: title ? title : `Tab${this.tabId}`,
+      isActive: isActive,
       removeTab: this.removeTab
     }
   }
@@ -122,11 +128,38 @@ export default class ScrollableTabs extends Component {
   scrollLeft = () => {
     // scrolling the tabs to left 
     this.tabGroupElment.scroll({ left: this.tabGroupElment.scrollLeft - this.props.defaultTabWidth, behavior: 'smooth' });
+
+    // on click on next cheveron btn, active tab is move to the nex tab in the tab group
+    // and making previous active tab inactive
+    let prevActiveTabNodeIndex = this.state.tabs.findIndex(tab => tab.isActive === true);
+    let nextTabIndex = [...this.tabGroupElment.childNodes].findIndex((tabNode) => tabNode.classList.contains('tabActive'));
+    nextTabIndex = this.tabGroupElment.childNodes[nextTabIndex - 1];
+
+    if (!nextTabIndex) {
+      // doing nothing if there is no next tab
+      return;
+    }
+    nextTabIndex = this.state.tabs.findIndex(tab => tab.id === parseInt(nextTabIndex.getAttribute('data-id')));
+    this.switchActiveTab(prevActiveTabNodeIndex, nextTabIndex);
   }
 
   scrollRight = () => {
     // scrolling the tabs to right 
     this.tabGroupElment.scroll({ left: this.tabGroupElment.scrollLeft + this.props.defaultTabWidth, behavior: 'smooth' });
+
+    // on click on previous cheveron btn, active tab is move to the front tab in the tab group
+    // and making previous active tab inactive
+    let prevActiveTabNodeIndex = this.state.tabs.findIndex(tab => tab.isActive === true);
+    let nextTabIndex = [...this.tabGroupElment.childNodes].findIndex((tabNode) => tabNode.classList.contains('tabActive'));
+    nextTabIndex = this.tabGroupElment.childNodes[nextTabIndex + 1];
+
+    if (!nextTabIndex) {
+      // doing nothing if there is no next tab
+      return;
+    }
+
+    nextTabIndex = this.state.tabs.findIndex(tab => tab.id === parseInt(nextTabIndex.getAttribute('data-id')));
+    this.switchActiveTab(prevActiveTabNodeIndex, nextTabIndex);
   }
 
   checkChevronVisiblility = () => {
@@ -203,6 +236,35 @@ export default class ScrollableTabs extends Component {
     });
   }
 
+  onClickTab = (tabId) => {
+    // on tab selection, the selected tab is making active
+    // and making inactive the previous selected
+    let previousActiveTabIndex = this.state.tabs.findIndex(tab => tab.isActive === true);
+    let selectedTabIndex = this.state.tabs.findIndex(tab => tab.id === tabId);
+
+    if (previousActiveTabIndex === selectedTabIndex) {
+      // doing nothing on active tab is clicked again
+      return;
+    }
+
+    this.switchActiveTab(previousActiveTabIndex, selectedTabIndex);
+  }
+
+  switchActiveTab = (oldActiveIndex, newActiveIndex) => {
+    // switch the active tab from old to new tab index
+
+    let tempTabs = [...this.state.tabs];
+
+    if (oldActiveIndex >= 0 && newActiveIndex >= 0) {
+      tempTabs[oldActiveIndex].isActive = false;
+      tempTabs[newActiveIndex].isActive = true;
+    }
+
+    this.setState({
+      tabs: tempTabs,
+    });
+  }
+
   render() {
     return (
       <div className={'scrollableTab'} style={this.props.defaultStyle}>
@@ -214,7 +276,7 @@ export default class ScrollableTabs extends Component {
 
         {/* tabs group */}
         <div className={'tabs'} id="tabGroup" ref={this.dragulaDecorator}>
-          {this.state.tabs.map((tab, index) => <Tab key={`Tab${index}`} tabInfo={tab} defaultStyle={{ minWidth: this.props.defaultTabWidth, maxWidth: this.props.defaultTabWidth }} />)}
+          {this.state.tabs.map((tab, index) => <Tab onClick={this.onClickTab} key={`Tab${index}`} tabInfo={tab} defaultStyle={{ minWidth: this.props.defaultTabWidth, maxWidth: this.props.defaultTabWidth }} />)}
         </div>
 
         {/* right cheveron button icon */}

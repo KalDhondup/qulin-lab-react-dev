@@ -29,6 +29,7 @@
 }
 
 .hidden {
+  /* style to hide element */
   display: none;
 }
 

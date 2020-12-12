@@ -1,14 +1,14 @@
 .madal{
   display: flex;
-    justify-content: space-around;
-    align-items: center;
-    z-index: 100;
-    position: absolute;
-    top: 0;
-    margin: auto;
-    /* background-color: bl; */
-    width: 100vw;
-    height: 100vh;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 100;
+  position: absolute;
+  top: 0;
+  margin: auto;
+  /* background-color: bl; */
+  width: 100vw;
+  height: 100vh;
 }
 
 .modalContainer{
