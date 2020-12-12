@@ -1,0 +1,31 @@
+.madal{
+  display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 100;
+    position: absolute;
+    top: 0;
+    margin: auto;
+    /* background-color: bl; */
+    width: 100vw;
+    height: 100vh;
+}
+
+.modalContainer{
+  display: flex;
+  flex-direction: column;
+  width: 20rem;
+  height: auto;
+  background-color: mintcream;
+  padding: 16px;
+  border-radius: 4px;
+}
+
+.modalContent {
+  display: block;
+}
+
+.modalBtnGroup {
+  display: flex;
+  align-items: flex-end;
+}
