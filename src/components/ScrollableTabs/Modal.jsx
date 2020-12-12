@@ -19,9 +19,10 @@ export default function Modal(props) {
         <div className={'modalContent'}>
           {props.modalDetial.description}
         </div>
+
         <div className={'modalBtnGroup'}>
-          <button onClick={props.onOk}>Ok</button>
-          <button onClick={props.onCancle}>Cancle</button>
+          <button onClick={props.modalDetial.onOk}>Ok</button>
+          <button onClick={props.modalDetial.onCancle}>Cancle</button>
         </div>
 
       </div>

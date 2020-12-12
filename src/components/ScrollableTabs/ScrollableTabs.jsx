@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './scrollableTabs.css';
 import Tab from './Tab';
-import add from './../../assets/icons/add.svg';
+import Dragula from 'react-dragula';
 import Modal from './Modal';
 
 export default class ScrollableTabs extends Component {
@@ -24,8 +24,25 @@ export default class ScrollableTabs extends Component {
   componentDidMount() {
     // this.createDefaultTabs();
     this.tabGroupElment = document.querySelector('#tabGroup');
+    this.tabGroupElment.addEventListener('scroll', () => {
+      // updates the chevron vasibility after scroll
+      this.checkChevronVisiblility();
+    });
+
+    window.addEventListener('resize', () => {
+      // updates the chevron vasibility after window resize
+      this.checkChevronVisiblility();
+    });
+
     this.createModalRoot();
   }
+
+  dragulaDecorator = (componentBackingInstance) => {
+    if (componentBackingInstance) {
+      let options = {};
+      Dragula([componentBackingInstance], options);
+    }
+  };
 
   createDefaultTabs = () => {
     // creates default tabs
@@ -51,16 +68,18 @@ export default class ScrollableTabs extends Component {
     // remove selected tab component from the tabs list
     if (this.state.tabs.length > 1) {
 
-      if (this.onOpenModal('Are you sure you want to remove this tab?')) {
-        this.state.tabs.splice(this.state.tabs.findIndex(tab => tab.id === id), 1);
-        this.setState({
-          tabs: [...this.state.tabs],
-        }, () => {
-          this.checkChevronVisiblility();
-        });
-
-      }
-
+      this.onOpenModal(
+        'Are you sure you want to remove this tab?',
+        () => {
+          // passing callback function on click ok
+          this.state.tabs.splice(this.state.tabs.findIndex(tab => tab.id === id), 1);
+          this.setState({
+            tabs: [...this.state.tabs],
+          }, () => {
+            this.checkChevronVisiblility();
+          });
+        },
+      );
     } else {
       this.onOpenModal('This is the last tab and can not be removed');
     }
@@ -79,7 +98,6 @@ export default class ScrollableTabs extends Component {
     } else {
       this.onOpenModal(`Tabs max limit is ${this.props.maxTabCounts}`);
     }
-
   }
 
   createModalRoot = () => {
@@ -103,26 +121,12 @@ export default class ScrollableTabs extends Component {
 
   scrollLeft = () => {
     // scrolling the tabs to left 
-    const scroll = () => new Promise((resolve, reject) => {
-      this.tabGroupElment.scroll({ left: this.tabGroupElment.scrollLeft - this.props.defaultTabWidth, behavior: 'smooth' });
-      resolve();
-    });
-
-    scroll().then(() => {
-      this.checkChevronVisiblility();
-    });
+    this.tabGroupElment.scroll({ left: this.tabGroupElment.scrollLeft - this.props.defaultTabWidth, behavior: 'smooth' });
   }
 
   scrollRight = () => {
     // scrolling the tabs to right 
-    const scroll = () => new Promise((resolve, reject) => {
-      this.tabGroupElment.scroll({ left: this.tabGroupElment.scrollLeft + this.props.defaultTabWidth, behavior: 'smooth' });
-      resolve();
-    });
-
-    scroll().then(() => {
-      this.checkChevronVisiblility();
-    });
+    this.tabGroupElment.scroll({ left: this.tabGroupElment.scrollLeft + this.props.defaultTabWidth, behavior: 'smooth' });
   }
 
   checkChevronVisiblility = () => {
@@ -136,42 +140,40 @@ export default class ScrollableTabs extends Component {
   setLeftChevronVisibility = () => {
     // hide left chevron btns if tab's are not exceding the scrollalble bar width
     // and first tab is visible
-    // if (this.tabGroupElment.scrollWidth > this.tabGroupElment.clientWidth) {
     if (this.tabGroupElment.scrollLeft > 0) {
       return false;
     } else {
       return true;
     }
-    // } else {
-    //   return true;
-    // }
   }
 
   setRightChevronVisibility = () => {
     // hide right chevron btns if tab's are not exceding the scrollalble bar width
     // and last tab is visible
     if (this.tabGroupElment.scrollWidth > this.tabGroupElment.clientWidth) {
-      if (this.tabGroupElment.scrollLeft < (this.tabGroupElment.scrollWidth - this.props.defaultTabWidth)) {
-        return false;
-      } else {
+      if (Math.ceil(this.tabGroupElment.scrollLeft + this.tabGroupElment.clientWidth) >= this.tabGroupElment.scrollWidth) {
         return true;
+      } else {
+        return false;
       }
     } else {
       return true;
     }
   }
 
-  onOpenModal = (description = '', title = '') => {
+  onOpenModal = (description = '', okCallbackFunc = null, cancleCallbackFunc = null) => {
     this.setState({
       modal: {
         open: true,
-        title: title,
-        description: description
+        title: '',
+        description: description,
+        onOk: () => this.modalOnOk(okCallbackFunc),
+        onCancle: () => this.modalOnCancle(cancleCallbackFunc),
       },
     });
   }
 
-  modalOnOk = () => {
+  modalOnOk = (callbackFucn) => {
     console.log('on modal ok');
     this.setState({
       modal: {
@@ -179,10 +181,14 @@ export default class ScrollableTabs extends Component {
         title: '',
         description: '',
       },
+    }, () => {
+      if (callbackFucn) {
+        callbackFucn();
+      }
     });
   }
 
-  modalOnCancle = () => {
+  modalOnCancle = (callbackFunc) => {
     console.log('on modal cancle');
     this.setState({
       modal: {
@@ -190,6 +196,10 @@ export default class ScrollableTabs extends Component {
         title: '',
         description: '',
       },
+    }, () => {
+      if (callbackFunc) {
+        callbackFunc();
+      }
     });
   }
 
@@ -203,7 +213,7 @@ export default class ScrollableTabs extends Component {
         </span>
 
         {/* tabs group */}
-        <div className={'tabs'} id="tabGroup">
+        <div className={'tabs'} id="tabGroup" ref={this.dragulaDecorator}>
           {this.state.tabs.map((tab, index) => <Tab key={`Tab${index}`} tabInfo={tab} defaultStyle={{ minWidth: this.props.defaultTabWidth, maxWidth: this.props.defaultTabWidth }} />)}
         </div>
 
