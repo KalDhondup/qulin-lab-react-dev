@@ -2,8 +2,6 @@ import React from 'react';
 import './content.css';
 
 export default function Content(props) {
-  console.log(props);
-
   return (
     <div className='content'>
       <div className='title'>{props.tabName}</div>

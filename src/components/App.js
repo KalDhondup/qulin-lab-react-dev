@@ -14,13 +14,12 @@ function App() {
       </div>
 
       <>
-        <ScrollableTabs selectedTab={(tabName) => setSelectedTab(tabName)} defaultTabCounts={3} maxTabCounts={10} defaultTabWidth={300} defaultStyle={{ height: '2.4rem', backgroundColor: '#f6f6f6' }} >
+        <ScrollableTabs selectedTab={(tabName) => setSelectedTab(tabName)} defaultTabCounts={3} maxTabCounts={10} defaultStyle={{ height: '2.4rem', backgroundColor: '#f6f6f6' }} >
         </ScrollableTabs>
         <Content tabName={selectedTab} />
       </>
     </div>
   );
 }
-
 
 export default App;

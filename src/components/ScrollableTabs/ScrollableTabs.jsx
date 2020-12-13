@@ -13,15 +13,15 @@ export default class ScrollableTabs extends Component {
     description: '',
     onOk: null,
     onCancle: null,
+
   }
 
   constructor(props) {
     super(props);
 
-    console.log(props);
-
     this.state = {
       tabs: this.createDefaultTabs(),
+      defaultTabWidth: 0,
       leftChevronHidden: true,
       rightChevronHidden: true,
       modal: {},
@@ -31,16 +31,13 @@ export default class ScrollableTabs extends Component {
   componentDidMount() {
     // this.createDefaultTabs();
     this.tabGroupElment = document.querySelector('#tabGroup');
-    this.tabGroupElment.addEventListener('scroll', () => {
-      // updates the chevron vasibility after scroll
-      // this.checkChevronVisiblility();
-    });
-
     window.addEventListener('resize', () => {
       // updates the chevron vasibility after window resize
       this.checkChevronVisiblility();
     });
 
+    this.setDefaultTabWidth();
+    this.checkChevronVisiblility();
     this.createModalRoot();
   }
 
@@ -52,6 +49,13 @@ export default class ScrollableTabs extends Component {
       Dragula([componentBackingInstance], options);
     }
   };
+
+  setDefaultTabWidth = () => {
+    // checks scrollableComponentWidth and set default tab width based on deafultTabCounts
+    this.setState({
+      defaultTabWidth: this.tabGroupElment.clientWidth / this.props.defaultTabCounts,
+    });
+  }
 
   createDefaultTabs = () => {
     // creates default tabs
@@ -154,42 +158,39 @@ export default class ScrollableTabs extends Component {
   }
 
   scrollLeft = () => {
-    // scrolling the tabs to left 
-    this.tabGroupElment.scroll({ left: this.tabGroupElment.scrollLeft - this.props.defaultTabWidth, behavior: 'smooth' });
-
     // on click on next cheveron btn, active tab is move to the nex tab in the tab group
     // and making previous active tab inactive
-    let prevActiveTabNodeIndex = this.state.tabs.findIndex(tab => tab.isActive === true);
-    let nextTabIndex = [...this.tabGroupElment.childNodes].findIndex((tabNode) => tabNode.classList.contains('tabActive'));
-    nextTabIndex = this.tabGroupElment.childNodes[nextTabIndex - 1];
 
-    if (!nextTabIndex) {
+    let prevActiveTabNodeIndex = this.state.tabs.findIndex(tab => tab.isActive === true);
+    let nextActiveTabIndex = [...this.tabGroupElment.childNodes].findIndex((tabNode) => tabNode.classList.contains('tabActive'));
+    nextActiveTabIndex = this.tabGroupElment.childNodes[nextActiveTabIndex - 1];
+
+    if (!nextActiveTabIndex) {
       // doing nothing if there is no next tab
       return;
     }
-    nextTabIndex = this.state.tabs.findIndex(tab => tab.id === parseInt(nextTabIndex.getAttribute('data-id')));
-    this.switchActiveTab(prevActiveTabNodeIndex, nextTabIndex);
 
-
+    nextActiveTabIndex.scrollIntoViewIfNeeded();
+    // this.checkActiveTabVisibility(nextActiveTabIndex.getBoundingClientRect());
+    nextActiveTabIndex = this.state.tabs.findIndex(tab => tab.id === parseInt(nextActiveTabIndex.getAttribute('data-id')));
+    this.switchActiveTab(prevActiveTabNodeIndex, nextActiveTabIndex);
   }
 
   scrollRight = () => {
-    // scrolling the tabs to right 
-    this.tabGroupElment.scroll({ left: this.tabGroupElment.scrollLeft + this.props.defaultTabWidth, behavior: 'smooth' });
-
     // on click on previous cheveron btn, active tab is move to the front tab in the tab group
     // and making previous active tab inactive
     let prevActiveTabNodeIndex = this.state.tabs.findIndex(tab => tab.isActive === true);
-    let nextTabIndex = [...this.tabGroupElment.childNodes].findIndex((tabNode) => tabNode.classList.contains('tabActive'));
-    nextTabIndex = this.tabGroupElment.childNodes[nextTabIndex + 1];
+    let nextActiveTabIndex = [...this.tabGroupElment.childNodes].findIndex((tabNode) => tabNode.classList.contains('tabActive'));
+    nextActiveTabIndex = this.tabGroupElment.childNodes[nextActiveTabIndex + 1];
 
-    if (!nextTabIndex) {
+    if (!nextActiveTabIndex) {
       // doing nothing if there is no next tab
       return;
     }
-
-    nextTabIndex = this.state.tabs.findIndex(tab => tab.id === parseInt(nextTabIndex.getAttribute('data-id')));
-    this.switchActiveTab(prevActiveTabNodeIndex, nextTabIndex);
+    nextActiveTabIndex.scrollIntoViewIfNeeded();
+    // this.checkActiveTabVisibility(nextActiveTabIndex.getBoundingClientRect());
+    nextActiveTabIndex = this.state.tabs.findIndex(tab => tab.id === parseInt(nextActiveTabIndex.getAttribute('data-id')));
+    this.switchActiveTab(prevActiveTabNodeIndex, nextActiveTabIndex);
   }
 
   checkChevronVisiblility = () => {
@@ -200,24 +201,38 @@ export default class ScrollableTabs extends Component {
     });
   }
 
-  checkActiveTabVisibility = ({ left, right }) => {
-    // use selected element boundingClientReact left, and right to make active tab fully visible by scroll
+  checkActiveTabVisibility = ({ left, right, width }) => {
+    // takes care of the active tab is in visible area of the scrollable tab
+    // do nothing if full active tab is visiable area
+    // 
+    let { left: tabGroupElementLeft, right: tabGroupElementRight, width: tabGroupElmentWidth } = this.tabGroupElment.getBoundingClientRect();
 
-    if (right > this.tabGroupElment.clientWidth) {
+    if (left >= tabGroupElementLeft && right <= tabGroupElementRight) {
+      return;
+    }
+
+    if (right > tabGroupElementRight) {
       this.tabGroupElment.scroll({
-        left: right,
+        left: (this.tabGroupElment.scrollWidth - tabGroupElementRight) - width,
         behavior: 'smooth',
       });
 
       return;
     }
 
-    if (left < this.tabGroupElment.scrollLeft) {
+    if (left < tabGroupElementLeft) {
       this.tabGroupElment.scroll({
-        left: 0,
+        // left: 0,
+        left: tabGroupElementRight + width,
         behavior: 'smooth',
       });
     }
+    // if ((left + this.state.defaultTabWidth) < this.tabGroupElment.scrollLeft) {
+    //   this.tabGroupElment.scroll({
+    //     left: this.tabGroupElment.scrollLeft - this.state.defaultTabWidth,
+    //     behavior: 'smooth',
+    //   });
+    // }
   }
 
   setLeftChevronVisibility = () => {
@@ -264,7 +279,8 @@ export default class ScrollableTabs extends Component {
   }
 
   modalOnOk = (callbackFucn) => {
-    console.log('on modal ok');
+    // action on madal ok button clicked
+
     this.setState({
       modal: { ...this.defaultModelDetail },
     }, () => {
@@ -275,7 +291,8 @@ export default class ScrollableTabs extends Component {
   }
 
   modalOnCancle = (callbackFunc) => {
-    console.log('on modal cancle');
+    // action on madal cancle button clicked
+
     this.setState({
       modal: { ...this.defaultModelDetail },
     }, () => {
@@ -298,7 +315,8 @@ export default class ScrollableTabs extends Component {
     }
 
     this.switchActiveTab(previousActiveTabIndex, selectedTabIndex);
-    this.checkActiveTabVisibility(e.currentTarget.getBoundingClientRect());
+    // this.checkActiveTabVisibility(e.currentTarget.getBoundingClientRect());
+    e.currentTarget.scrollIntoViewIfNeeded();
   }
 
   switchActiveTab = (oldActiveIndex, newActiveIndex) => {
@@ -327,22 +345,22 @@ export default class ScrollableTabs extends Component {
 
         {/* left cheveron button icon */}
         <span className={`btnIcons ${this.state.leftChevronHidden ? 'invisible' : ''}`} onClick={this.scrollLeft}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="auto" height="auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-left"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-chevron-left"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </span>
 
         {/* tabs group */}
         <div className={'tabs'} id="tabGroup" ref={this.dragulaDecorator}>
-          {this.state.tabs.map((tab, index) => <Tab onClick={this.onClickTab} key={`Tab${index}`} tabInfo={tab} defaultStyle={{ minWidth: this.props.defaultTabWidth, maxWidth: this.props.defaultTabWidth }} />)}
+          {this.state.tabs.map((tab, index) => <Tab onClick={this.onClickTab} key={`Tab${index}`} tabInfo={tab} defaultStyle={{ minWidth: this.state.defaultTabWidth, maxWidth: this.state.defaultTabWidth }} />)}
         </div>
 
         {/* right cheveron button icon */}
         <span className={`btnIcons ${this.state.rightChevronHidden ? 'invisible' : ''}`} onClick={this.scrollRight}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="auto" height="auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </span>
 
         {/* add buton icon */}
         <span className={'btnIcons'} onClick={this.addNewTab}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="auto" height="auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-plus"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </span>
 
 

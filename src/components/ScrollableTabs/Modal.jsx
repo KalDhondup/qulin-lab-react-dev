@@ -3,12 +3,11 @@ import ReactDOM from 'react-dom';
 import './modal.css';
 
 export default function Modal(props) {
-
-  console.log(props);
-
   React.useEffect(() => {
+    // adding blur filter on root div on modal open
     document.querySelector('#root').style.filter = 'blur(2px)';
     return () => {
+      // removing blur filter on root div on modal open
       document.querySelector('#root').style.filter = 'none';
     }
   });
@@ -16,6 +15,7 @@ export default function Modal(props) {
   const Button = ({ className, label, onClick }) => {
     return <button className={className} onClick={onClick}>{label}</button>
   }
+
 
   return ReactDOM.createPortal(
     <div className={`madal`}>
