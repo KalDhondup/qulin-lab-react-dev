@@ -15,7 +15,7 @@ function Tab(props) {
       onMouseOut={() => setOnHover(false)}
       onBlur={() => setOnFocus(true)}
       onFocus={() => setOnFocus(true)}
-      onClick={() => props.onClick(props.tabInfo.id)}
+      onClick={(e) => props.onClick(props.tabInfo.id, e)}
     >
       <div className={'tabContent'}>
         {props.tabInfo.title}

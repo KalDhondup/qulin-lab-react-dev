@@ -13,8 +13,8 @@ export default function Modal(props) {
     }
   });
 
-  const Button = ({ label, onClick }) => {
-    return <button onClick={onClick}>{label}</button>
+  const Button = ({ className, label, onClick }) => {
+    return <button className={className} onClick={onClick}>{label}</button>
   }
 
   return ReactDOM.createPortal(
@@ -25,8 +25,8 @@ export default function Modal(props) {
         </div>
 
         <div className={'modalBtnGroup'}>
-          {props.modalDetial.onOk && <Button label={'Ok'} onClick={props.modalDetial.onOk} />}
-          {props.modalDetial.onCancle && <Button label={'Cancle'} onClick={props.modalDetial.onCancle} />}
+          {props.modalDetial.onOk && <Button label={'Ok'} onClick={props.modalDetial.onOk} className={'primaryBtn'} />}
+          {props.modalDetial.onCancle && <Button label={'Cancle'} onClick={props.modalDetial.onCancle} className={'secondaryBtn'} />}
         </div>
 
       </div>

@@ -28,9 +28,10 @@
 
 }
 .tabActive {
-  border-bottom: 2px #61dafb solid;
+  border-bottom: 4px #61dafb solid;
   background-color: #ecfbff;
   transition: any ease-in-out 1000ms;
+  margin-bottom: -2px;
 }
 
 .removeBtn {

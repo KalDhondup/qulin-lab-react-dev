@@ -41,6 +41,13 @@
   display: none;
 }
 
+.invisible {
+  /* making element invisible but reserve the space */
+  visibility: hidden;
+  transition: none;
+}
+
+
 
 /* --------------------------------------------------------------------------------- */
 /* dragula: drag and drop library (css) */
